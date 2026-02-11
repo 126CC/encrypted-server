@@ -85,11 +85,12 @@ function verifyPassword(inputPassword, storedSalt, storedHash, actionOnSuccess, 
 
 let users = [
     {
-
+        username: 'Mr. Goldstein',
+        password: 'asdjghjkashfjg'
     }
 ];
 
-let admin = [
+let admins = [
     {
         username: 'Mr. Goldstein',
         hash: 'ff5de730fa61e4b9d3ec2298efdce03e24240fb00d45f0d21f4644cda8c85ac4864091d93eefbfbb3b44b11fd6a8107d7f4675f9d4c93fc2503c27b9aa927dc8',
@@ -117,11 +118,42 @@ app.post('/user', (req, res) => {
     let decryptedPassword = decryptData(encryptedPassword);
 
     for(let i = 0; i < users.length; i++) {
-        if(users[i] === decryptUserName) {
+        if(users[i].username === decryptUserName) {
             return res.status(400).json({error: "Please type in a valid user and pass"});
         }
     }
+
+    for(let i = 0; i < admins.length; i++) {
+        if(admins[i].username === decryptUserName) {
+            return res.status(400).json({error: "Please type in a valid user and pass"});
+        }
+    }
+
     createUser(decryptUserName, decryptedPassword);
     console.log('User created', JSON.stringify(decryptUserName, null, 2));
     return res.status(201).json("User created successfully.");
+})
+
+app.put('/data', (req, res) => {
+    console.log(req.body);
+    const {encryptedUserName, encryptedPassword, encryptedData} = req.body;
+    let decryptedUserName = decryptData(encryptedUserName);
+    let decryptedPassword = decryptData(encryptedPassword);
+    let decryptedData = decryptData(encryptedData);
+
+    for(let i = 0; i < users.length; i++) {
+        if(users[i].username === decryptedUserName) {
+            verifyPassword(decryptedPassword);
+        }
+    }
+    res.status(404).json({error: "User not found"});
+
+    for(let i = 0; i < admins.length; i++) {
+        if(admins[i].username === decryptedUserName) {
+            verifyPassword(decryptedPassword, admins[i].salt, admins[i].hash, () => {
+                const getData = req.params.data;
+            }, res.status(403).json({error: "Forbidden"}));
+
+        }
+    }
 })
