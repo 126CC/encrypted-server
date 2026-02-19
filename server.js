@@ -251,7 +251,7 @@ app.get('/data', (req, res) => {
                 console.log("Password invalid admin");
             })
         } else {
-            verifyPassword(decryptedPassword, users[userIndex].salt, admins[adminIndex].hash, () => {
+            verifyPassword(decryptedPassword, users[userIndex].salt, users[userIndex].hash, () => {
                 res.status(200).json("Data: " + users[userIndex].data);
                 console.log("Data given to user");
             }, () => {
