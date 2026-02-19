@@ -179,23 +179,31 @@ app.put('/data', (req, res) => {
 
     if(userCheck) {
         if(adminCheck) {
-            verifyPassword(decryptedPassword, admins[adminIndex].salt, admins[adminIndex].hash, () => {
-                users[userIndex].data = decryptedData;
-                res.status(200).json("Data updated");
-                console.log(users[userIndex].data);
-            }, () => {
-                res.status(403).json("Password invalid");
-                console.log("Password invalid admin");
-            });
+            for(let i = 0; i < users.length; i++) {
+                if(users[i].username === user) {
+                    verifyPassword(decryptedPassword, admins[adminIndex].salt, admins[adminIndex].hash, () => {
+                        users[userIndex].data = decryptedData;
+                        res.status(200).json("Data updated");
+                        console.log(users[userIndex].data);
+                    }, () => {
+                        res.status(403).json("Password invalid");
+                        console.log("Password invalid admin");
+                    });
+                }
+            }
         } else {
-            verifyPassword(decryptedPassword, users[userIndex].salt, users[userIndex].hash, () => {
-                users[userIndex].data = decryptedData;
-                res.status(200).json("Data updated");
-                console.log(users[userIndex].data);
-            }, () => {
-                res.status(403).json("Password invalid");
-                console.log("Password invalid user");
-            })
+            for(let i = 0; i < users.length; i++) {
+                if(users[i].username === decryptedUserName) {
+                    verifyPassword(decryptedPassword, users[userIndex].salt, users[userIndex].hash, () => {
+                        users[userIndex].data = decryptedData;
+                        res.status(200).json("Data updated");
+                        console.log(users[userIndex].data);
+                    }, () => {
+                        res.status(403).json("Password invalid");
+                        console.log("Password invalid user");
+                    })
+                }
+            }
         }
     } else {
         console.log("User does not exist");
