@@ -242,7 +242,17 @@ app.get('/data', (req, res) => {
 
     if(userCheck) {
         if(adminCheck) {
-
+            verifyPassword(decryptedPassword, admins[adminIndex].salt, admins[adminIndex].hash, () => {
+                res.status(200).json("Data: " + users[userIndex].data);
+                console.log(users[userIndex].data + "Data given to admin");
+            }, () => {
+                res.status(403).json("Password invalid");
+                console.log("Password invalid");
+            })
+        } else {
+            verifyPassword(decryptedPassword, users[userIndex].salt, admins[adminIndex].hash, () => {
+                res.status(200).json("Data: " + users[userIndex].data);
+            })
         }
     }
 })
