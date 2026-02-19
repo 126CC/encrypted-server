@@ -14,6 +14,7 @@ app.listen(port, () => {
 })
 
 const crypto = require('crypto');
+const req = require("express/lib/request");
 
 const generateKeys = () => {
     const keys = crypto.generateKeyPairSync('rsa', {
@@ -108,7 +109,7 @@ const urlSafeToBase64 = (urlSafeStr) => {
 
 app.get('/public_key', (req, res) => {
     res.json(publicKey)
-});
+})
 
 app.post('/user', (req, res) => {
     console.log(req.body);
@@ -152,7 +153,7 @@ app.put('/data', (req, res) => {
         res.status(400).json({error: "Please type in a valid user and pass"});
     }
 
-    for(let i = 0; i < users.length; i++) {
+    for(let i = 0; i < admins.length; i++) {
         if(admins[i].username === decryptedUserName) {
             adminCheck = true;
             adminIndex = i;
@@ -160,7 +161,7 @@ app.put('/data', (req, res) => {
     }
 
     if(adminCheck) {
-        for(let i = 0; i < admins.length; i++) {
+        for(let i = 0; i < users.length; i++) {
             if(users[i].username === user) {
                 userCheck = true;
                 userIndex = i;
@@ -201,5 +202,47 @@ app.put('/data', (req, res) => {
     }
 
 
+})
 
+app.get('/data', (req, res) => {
+    const {u, p} = req.query;
+    const {user} = req.query;
+    const encryptedUsername = urlSafeToBase64(u);
+    const encryptedPassword = urlSafeToBase64(p);
+    const decryptedUsername = decryptData(encryptedUsername);
+    const decryptedPassword = decryptData(encryptedPassword);
+
+    let adminCheck = false;
+    let adminIndex = -1;
+    let userCheck = false;
+    let userIndex = -1;
+
+    for(let i = 0; i < admins.length; i++) {
+        if(decryptedUsername === admins[i].username) {
+            adminCheck = true;
+            adminIndex = i;
+        }
+    }
+
+    if(adminCheck) {
+        for(let i = 0; i < users.length; i++) {
+            if(user === users[i].username) {
+                userCheck = true;
+                userIndex = i;
+            }
+        }
+    } else {
+        for(let i = 0; i < users.length; i++) {
+            if(decryptedUsername === users[i].username) {
+                userCheck = true;
+                userIndex = i;
+            }
+        }
+    }
+
+    if(userCheck) {
+        if(adminCheck) {
+
+        }
+    }
 })
