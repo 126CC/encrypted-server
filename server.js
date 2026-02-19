@@ -84,15 +84,16 @@ function verifyPassword(inputPassword, storedSalt, storedHash, actionOnSuccess, 
     });
 }
 
-let users = [
-    {
-        username: "Mr. Goldstein"
-    }
-];
+let users = [];
 
 let admins = [
     {
         username: 'Mr. Goldstein',
+        hash: 'ff5de730fa61e4b9d3ec2298efdce03e24240fb00d45f0d21f4644cda8c85ac4864091d93eefbfbb3b44b11fd6a8107d7f4675f9d4c93fc2503c27b9aa927dc8',
+        salt: '19bc8c2e05f668a19bccc5262042af2b'
+    },
+    {
+        username: 'charchar',
         hash: 'ff5de730fa61e4b9d3ec2298efdce03e24240fb00d45f0d21f4644cda8c85ac4864091d93eefbfbb3b44b11fd6a8107d7f4675f9d4c93fc2503c27b9aa927dc8',
         salt: '19bc8c2e05f668a19bccc5262042af2b'
     }
