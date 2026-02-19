@@ -180,29 +180,29 @@ app.put('/data', (req, res) => {
     if(userCheck) {
         if(adminCheck) {
             for(let i = 0; i < users.length; i++) {
-                if(users[i].username === user) {
                     verifyPassword(decryptedPassword, admins[adminIndex].salt, admins[adminIndex].hash, () => {
-                        users[userIndex].data = decryptedData;
-                        res.status(200).json("Data updated");
-                        console.log(users[userIndex].data);
+                        if(users[i].username === user) {
+                            users[userIndex].data = decryptedData;
+                            res.status(200).json("Data updated");
+                            console.log(users[userIndex].data);
+                        }
                     }, () => {
                         res.status(403).json("Password invalid");
-                        console.log("Password invalid admin");
+                        console.log("Password invalid for admin");
                     });
-                }
             }
         } else {
             for(let i = 0; i < users.length; i++) {
-                if(users[i].username === decryptedUserName) {
                     verifyPassword(decryptedPassword, users[userIndex].salt, users[userIndex].hash, () => {
-                        users[userIndex].data = decryptedData;
-                        res.status(200).json("Data updated");
-                        console.log(users[userIndex].data);
+                        if(users[i].username === decryptedUserName) {
+                            users[userIndex].data = decryptedData;
+                            res.status(200).json("Data updated");
+                            console.log(users[userIndex].data);
+                        }
                     }, () => {
                         res.status(403).json("Password invalid");
-                        console.log("Password invalid user");
+                        console.log("Password invalid for user");
                     })
-                }
             }
         }
     } else {
@@ -256,7 +256,7 @@ app.get('/data', (req, res) => {
                 console.log(users[userIndex].data + "Data given to admin");
             }, () => {
                 res.status(403).json("Password invalid");
-                console.log("Password invalid admin");
+                console.log("Password invalid for admin");
             })
         } else {
             verifyPassword(decryptedPassword, users[userIndex].salt, users[userIndex].hash, () => {
@@ -264,7 +264,7 @@ app.get('/data', (req, res) => {
                 console.log("Data given to user");
             }, () => {
                 res.status(403).json("Password invalid");
-                console.log("Password invalid user");
+                console.log("Password invalid for user");
             })
         }
     } else {
