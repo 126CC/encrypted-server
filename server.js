@@ -185,7 +185,7 @@ app.put('/data', (req, res) => {
                 console.log(users[userIndex].data);
             }, () => {
                 res.status(403).json("Password invalid");
-                console.log("Password invalid");
+                console.log("Password invalid admin");
             });
         } else {
             verifyPassword(decryptedPassword, users[userIndex].salt, users[userIndex].hash, () => {
@@ -194,7 +194,7 @@ app.put('/data', (req, res) => {
                 console.log(users[userIndex].data);
             }, () => {
                 res.status(403).json("Password invalid");
-                console.log("Password invalid");
+                console.log("Password invalid user");
             })
         }
     } else {
