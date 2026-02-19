@@ -247,12 +247,19 @@ app.get('/data', (req, res) => {
                 console.log(users[userIndex].data + "Data given to admin");
             }, () => {
                 res.status(403).json("Password invalid");
-                console.log("Password invalid");
+                console.log("Password invalid admin");
             })
         } else {
             verifyPassword(decryptedPassword, users[userIndex].salt, admins[adminIndex].hash, () => {
                 res.status(200).json("Data: " + users[userIndex].data);
+                console.log("Data given to user");
+            }, () => {
+                res.status(403).json("Password invalid");
+                console.log("Password invalid user");
             })
         }
+    } else {
+        console.log("User does not exist" + userCheck + adminCheck);
+        res.status(401).json({error: 'user does not exist'});
     }
 })
