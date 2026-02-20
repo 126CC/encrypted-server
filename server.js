@@ -149,61 +149,62 @@ app.put('/data', (req, res) => {
     let userCheck = false;
     let userIndex = -1;
 
+    let targetUser;
+    let targetIndex = -1;
 
-    if(!encryptedUserName || !encryptedPassword) {
-        res.status(400).json({error: "Please type in a valid user and pass"});
+
+    if(!encryptedUserName || !encryptedPassword || !encryptedData) {
+        res.status(400).json({error: "Invalid input"});
     }
 
     for(let i = 0; i < admins.length; i++) {
         if(admins[i].username === decryptedUserName) {
-            adminCheck = true;
             adminIndex = i;
+            console.log("Admin auth attempt", decryptedUserName);
         }
     }
 
-    if(adminCheck) {
-        for(let i = 0; i < users.length; i++) {
-            if(users[i].username === user) {
-                userCheck = true;
-                userIndex = i;
-            }
-        }
+    if(adminIndex === -1) {
+        targetUser = user;
+        console.log("Admin target user", targetUser);
     } else {
-        for(let i = 0; i < users.length; i++) {
-            if(users[i].username === decryptedUserName) {
-                userCheck = true;
-                userIndex = i;
-            }
+        targetUser = decryptedUserName;
+        console.log("User targets self", targetUser);
+    }
+
+    for(let i = 0; i < users.length; i++) {
+        if(users[i].username === targetUser) {
+            targetIndex = i;
         }
     }
 
-    if(userCheck) {
-        if(adminCheck) {
-                    verifyPassword(decryptedPassword, admins[adminIndex].salt, admins[adminIndex].hash, () => {
-                            users[userIndex].data = decryptedData;
-                            res.status(200).json("Data updated");
-                            console.log(users[userIndex].data);
-                    }, () => {
-                        res.status(403).json("Password invalid");
-                        console.log("Password invalid for admin");
-                    });
-        } else {
-                    verifyPassword(decryptedPassword, users[userIndex].salt, users[userIndex].hash, () => {
-                            users[userIndex].data = decryptedData;
-                            res.status(200).json("Data updated");
-                            console.log(users[userIndex].data);
-                    }, () => {
-                        res.status(403).json("Password invalid");
-                        console.log("Password invalid for user");
-                    })
-        }
+    if(targetIndex === -1) {
+        console.log("Put failed - User not found", targetUser);
+        return res.status(404).json({error: "User does not exist"});
+    }
+
+    let account;
+    if (adminIndex !== -1) {
+        account = admins[adminIndex];
     } else {
-        console.log("User does not exist");
-        res.status(401).json({error: 'user does not exist'});
+        account = users[targetIndex];
     }
 
-
-})
+    verifyPassword(
+        decryptedPassword,
+        account.salt,
+        account.hash,
+        () => {
+            users[targetIndex].data = decryptedData;
+            console.log("DATA UPDATED FOR:", targetUser);
+            res.status(200).json("Data updated");
+        },
+        () => {
+            console.log("PASSWORD INVALID FOR:", decryptedUserName);
+            res.status(403).json("Password is invalid");
+        }
+    );
+});
 
 app.get('/data', (req, res) => {
     const {u, p} = req.query;
