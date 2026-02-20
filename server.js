@@ -65,6 +65,8 @@ function createUser(user, password) {
         };
 
         users.push(newUser);
+        console.log(hash);
+        console.log(salt);
 
     })
 
@@ -92,6 +94,11 @@ let admins = [
         hash: 'ff5de730fa61e4b9d3ec2298efdce03e24240fb00d45f0d21f4644cda8c85ac4864091d93eefbfbb3b44b11fd6a8107d7f4675f9d4c93fc2503c27b9aa927dc8',
         salt: '19bc8c2e05f668a19bccc5262042af2b'
     },
+    {
+        username: "33",
+        hash: '82ec67c8ba77a83b9499fb8ba5fb3d7f1eda2bfefb51bc1ddd0dddb323cf944f0ecfe0f1a31c89b90fe702aff0a2d6551c5d5a63b6835b5bb8076c9bfd81f7b0',
+        salt: 'c6535e5c63692dd5815513177ce74043'
+    }
 ];
 
 const urlSafeToBase64 = (urlSafeStr) => {
