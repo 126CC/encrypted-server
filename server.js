@@ -179,20 +179,15 @@ app.put('/data', (req, res) => {
 
     if(userCheck) {
         if(adminCheck) {
-            for(let i = 0; i < users.length; i++) {
                     verifyPassword(decryptedPassword, admins[adminIndex].salt, admins[adminIndex].hash, () => {
-                        if(users[i].username === user) {
                             users[userIndex].data = decryptedData;
                             res.status(200).json("Data updated");
                             console.log(users[userIndex].data);
-                        }
                     }, () => {
                         res.status(403).json("Password invalid");
                         console.log("Password invalid for admin");
                     });
-            }
         } else {
-            for(let i = 0; i < users.length; i++) {
                     verifyPassword(decryptedPassword, users[userIndex].salt, users[userIndex].hash, () => {
                         if(users[i].username === decryptedUserName) {
                             users[userIndex].data = decryptedData;
@@ -203,7 +198,6 @@ app.put('/data', (req, res) => {
                         res.status(403).json("Password invalid");
                         console.log("Password invalid for user");
                     })
-            }
         }
     } else {
         console.log("User does not exist");
