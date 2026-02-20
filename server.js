@@ -189,11 +189,9 @@ app.put('/data', (req, res) => {
                     });
         } else {
                     verifyPassword(decryptedPassword, users[userIndex].salt, users[userIndex].hash, () => {
-                        if(users[i].username === decryptedUserName) {
                             users[userIndex].data = decryptedData;
                             res.status(200).json("Data updated");
                             console.log(users[userIndex].data);
-                        }
                     }, () => {
                         res.status(403).json("Password invalid");
                         console.log("Password invalid for user");
