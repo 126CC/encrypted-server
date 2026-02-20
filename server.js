@@ -92,11 +92,6 @@ let admins = [
         hash: 'ff5de730fa61e4b9d3ec2298efdce03e24240fb00d45f0d21f4644cda8c85ac4864091d93eefbfbb3b44b11fd6a8107d7f4675f9d4c93fc2503c27b9aa927dc8',
         salt: '19bc8c2e05f668a19bccc5262042af2b'
     },
-    {
-        username: 'charchar',
-        hash: 'ff5de730fa61e4b9d3ec2298efdce03e24240fb00d45f0d21f4644cda8c85ac4864091d93eefbfbb3b44b11fd6a8107d7f4675f9d4c93fc2503c27b9aa927dc8',
-        salt: '19bc8c2e05f668a19bccc5262042af2b'
-    }
 ];
 
 const urlSafeToBase64 = (urlSafeStr) => {
@@ -144,13 +139,9 @@ app.put('/data', (req, res) => {
     let decryptedPassword = decryptData(encryptedPassword);
     let decryptedData = decryptData(encryptedData);
 
-    let adminCheck = false;
     let adminIndex = -1;
-    let userCheck = false;
-    let userIndex = -1;
-
-    let targetUser;
     let targetIndex = -1;
+    let targetUser;
 
 
     if(!encryptedUserName || !encryptedPassword || !encryptedData) {
@@ -207,61 +198,63 @@ app.put('/data', (req, res) => {
 });
 
 app.get('/data', (req, res) => {
-    const {u, p} = req.query;
-    const {user} = req.query;
+    const {u, p, user} = req.query;
     const encryptedUsername = urlSafeToBase64(u);
     const encryptedPassword = urlSafeToBase64(p);
     const decryptedUsername = decryptData(encryptedUsername);
     const decryptedPassword = decryptData(encryptedPassword);
 
-    let adminCheck = false;
     let adminIndex = -1;
-    let userCheck = false;
-    let userIndex = -1;
+    let targetIndex = -1;
+    let targetUser;
+
+
+    if(!u || !p || !user) {
+        return res.status(400).json({error: "Invalid input"});
+    }
 
     for(let i = 0; i < admins.length; i++) {
-        if(decryptedUsername === admins[i].username) {
-            adminCheck = true;
+        if(admins[i].username === decryptedUsername) {
             adminIndex = i;
+            console.log("Admin read attempt", decryptedUsername);
         }
     }
 
-    if(adminCheck) {
-        for(let i = 0; i < users.length; i++) {
-            if(user === users[i].username) {
-                userCheck = true;
-                userIndex = i;
-            }
-        }
+    if (adminIndex !== -1) {
+        targetUser = user;
     } else {
-        for(let i = 0; i < users.length; i++) {
-            if(decryptedUsername === users[i].username) {
-                userCheck = true;
-                userIndex = i;
-            }
+        targetUser = decryptedUsername;
+    }
+
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].username === targetUser) {
+            targetIndex = i;
         }
     }
 
-    if(userCheck) {
-        if(adminCheck) {
-            verifyPassword(decryptedPassword, admins[adminIndex].salt, admins[adminIndex].hash, () => {
-                res.status(200).json("Data: " + users[userIndex].data);
-                console.log(users[userIndex].data + "Data given to admin");
-            }, () => {
-                res.status(403).json("Password invalid");
-                console.log("Password invalid for admin");
-            })
-        } else {
-            verifyPassword(decryptedPassword, users[userIndex].salt, users[userIndex].hash, () => {
-                res.status(200).json("Data: " + users[userIndex].data);
-                console.log("Data given to user");
-            }, () => {
-                res.status(403).json("Password invalid");
-                console.log("Password invalid for user");
-            })
-        }
-    } else {
-        console.log("User does not exist" + userCheck + adminCheck);
-        res.status(401).json({error: 'user does not exist'});
+    if (targetIndex === -1) {
+        console.log("GET FAILED — USER NOT FOUND:", targetUser);
+        return res.status(404).json({ error: 'user does not exist' });
     }
-})
+
+    let account;
+    if (adminIndex !== -1) {
+        account = admins[adminIndex];
+    } else {
+        account = users[targetIndex];
+    }
+
+    verifyPassword(
+        decryptedPassword,
+        account.salt,
+        account.hash,
+        () => {
+            console.log("DATA READ FOR:", targetUser);
+            res.status(200).json("data: " + users[targetIndex].data);
+        },
+        () => {
+            console.log("PASSWORD INVALID FOR:", decryptedUsername);
+            res.status(403).json("password is invalid");
+        }
+    );
+});
