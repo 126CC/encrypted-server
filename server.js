@@ -169,6 +169,12 @@ app.put('/data', (req, res) => {
         console.log("User targets self", targetUser);
     }
 
+    if(adminIndex === -1) {
+        if(decryptedUserName !== user) {
+            return res.status(400).json({error: "Username must match user if its a user"});
+        }
+    }
+
     for(let i = 0; i < users.length; i++) {
         if(users[i].username === targetUser) {
             targetIndex = i;
