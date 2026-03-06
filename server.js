@@ -65,8 +65,7 @@ function createUser(user, password) {
         };
 
         users.push(newUser);
-        console.log(hash);
-        console.log(salt);
+        console.log(newUser);
 
     })
 
